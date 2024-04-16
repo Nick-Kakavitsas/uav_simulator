@@ -1,6 +1,7 @@
 import datetime
 import numpy as np
 import pdb
+import trajUtils as cm
 
 
 class Trajectory:
@@ -65,6 +66,47 @@ class Trajectory:
 
         self.e1 = np.array([1.0, 0.0, 0.0])
 
+        '''NK: Setup trajectory function'''
+        # Get the desired setpoints from the defining functions
+        coordPlots = False
+        desAlt = 20
+        desRad = 5
+        IC = np.zeros(3)
+        wp = cm.rrtCoords(20, coordPlots, IC)
+        n = np.max(wp.shape)
+
+        # Setup the vehicle with the required states
+        class Vehicle():
+            pass
+        vehicle = Vehicle()
+        vehicle.psi = 0
+        vehicle.wDot = np.zeros(3)
+        vehicle.pos = np.zeros(3)
+        self.vehicle = vehicle
+
+        # Controller setup
+        # Select Control Type             (0: xyz_pos,                  1: xy_vel_z_pos,            2: xyz_vel)
+        ctrlOptions = ["xyz_pos", "xy_vel_z_pos", "xyz_vel"]
+        ctrlType = ctrlOptions[0]
+
+        # Initialize trajectory selector
+        trajSelect = np.zeros(3)
+        # Select Position Trajectory Type (0: hover,                    1: pos_waypoint_timed,      2: pos_waypoint_interp,
+        #                                  3: minimum velocity          4: minimum accel,           5: minimum jerk,           6: minimum snap
+        #                                  7: minimum accel_stop        8: minimum jerk_stop        9: minimum snap_stop
+        #                                 10: minimum jerk_full_stop   11: minimum snap_full_stop
+        #                                 12: pos_waypoint_arrived     13: pos_waypoint_arrived_wait
+        trajSelect[0] = 4
+        # Select Yaw Trajectory Type      (3: follow          4: zero) <<< NK: ONLY SELECT THESE OPTIONS
+        trajSelect[1] = 3
+        # NK: Select the average time between waypoints (I think this is what it does) - changed from original options
+        trajSelect[2] = 5
+
+        # Define the trajectory time step
+        self.trajDt = 1
+
+        # Define the trajectory
+        self.traj = Trajectory(self.vehicle, ctrlType, trajSelect, wp)
 
     def get_desired(self, mode, states, x_offset, yaw_offset):
         self.x, self.v, self.a, self.R, self.W = states
@@ -84,15 +126,17 @@ class Trajectory:
             self.xd_4dot, self.b1d, self.b1d_dot, self.b1d_2dot, self.is_landed)
         return desired
 
-    
     def calculate_desired(self):
         if self.manual_mode:
             self.manual()
             return
         
-        if self.mode == 0 or self.mode == 1:  # idle and warm-up
+        # if self.mode == 0 or self.mode == 1:  # idle and warm-up
+        if self.mode == 0:  # idle and warm-up
             self.set_desired_states_to_zero()
             self.mark_traj_start()
+        elif self.mode == 1:  # NK: Change warm-up to my trajectory so I don't have to add a new button (for now)
+            self.nickTraj()
         elif self.mode == 2:  # take-off
             self.takeoff()
         elif self.mode == 3:  # land
@@ -101,7 +145,6 @@ class Trajectory:
             self.stay()
         elif self.mode == 5:  # circle
             self.circle()
-
 
     def mark_traj_start(self):
         self.trajectory_started = False
@@ -120,13 +163,11 @@ class Trajectory:
 
         self.update_initial_state()
 
-
     def mark_traj_end(self, switch_to_manual=False):
         self.trajectory_complete = True
 
         if switch_to_manual:
             self.manual_mode = True
-
 
     def set_desired_states_to_zero(self):
         self.xd = np.zeros(3)
@@ -139,7 +180,6 @@ class Trajectory:
         self.b1d_dot = np.zeros(3)
         self.b1d_2dot = np.zeros(3)
 
-    
     def set_desired_states_to_current(self):
         self.xd = np.copy(self.x)
         self.xd_dot = np.copy(self.v)
@@ -151,7 +191,6 @@ class Trajectory:
         self.b1d_dot = np.zeros(3)
         self.b1d_2dot = np.zeros(3)
 
-
     def update_initial_state(self):
         self.x_init = np.copy(self.x)
         self.v_init = np.copy(self.v)
@@ -162,12 +201,10 @@ class Trajectory:
         self.b1_init = self.get_current_b1()
         self.theta_init = np.arctan2(self.b1_init[1], self.b1_init[0])
 
-    
     def get_current_b1(self):
         b1 = self.R.dot(self.e1)
         theta = np.arctan2(b1[1], b1[0])
         return np.array([np.cos(theta), np.sin(theta), 0.0])
-
 
     def waypoint_reached(self, waypoint, current, radius):
         delta = waypoint - current
@@ -177,11 +214,9 @@ class Trajectory:
         else:
             return False
 
-
     def update_current_time(self):
         t_now = datetime.datetime.now()
         self.t = (t_now - self.t0).total_seconds()
-
 
     def manual(self):
         if not self.manual_mode_init:
@@ -199,7 +234,6 @@ class Trajectory:
 
         theta = self.theta_init + self.yaw_offset
         self.b1d = np.array([np.cos(theta), np.sin(theta), 0.0])
-
 
     def takeoff(self):
         if not self.trajectory_started:
@@ -233,7 +267,6 @@ class Trajectory:
                 
                 self.mark_traj_end(True)
 
-
     def land(self):
         if not self.trajectory_started:
             self.set_desired_states_to_current()
@@ -264,14 +297,12 @@ class Trajectory:
                 self.xd[2] = self.landing_motor_cutoff_height
                 self.xd_dot[2] = self.landing_velocity
 
-            
     def stay(self):
         if not self.trajectory_started:
             self.set_desired_states_to_current()
             self.trajectory_started = True
         
         self.mark_traj_end(True)
-
 
     def circle(self):
         if not self.trajectory_started:
@@ -326,3 +357,14 @@ class Trajectory:
                 w_b1d * w_b1d * np.sin(th_b1d), 0.0])
         else:
             self.mark_traj_end(True)
+
+    def nickTraj(self):
+        # Get initial conditions for vehicle
+        self.update_initial_state()
+
+        # Get new trajectory
+        desTraj = self.traj.desiredState(self.t, self.trajDt, self.vehicle)
+
+        # Unpack the desired trajectory and set them
+        (self.xd, self.xd_dot, self.xd_2dot, self.xd_3dot, self.xd_4dot, self.b1d, self.b1d_dot, self.b1d_2dot, _, _, _) = desTraj
+
