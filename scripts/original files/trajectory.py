@@ -48,7 +48,7 @@ class Trajectory:
         self.yaw_offset = 0.0
 
         # Take-off
-        self.takeoff_end_height = -5.0  # (m)
+        self.takeoff_end_height = -1.0  # (m)
         self.takeoff_velocity = -1.0  # (m/s)
 
         # Landing
@@ -207,7 +207,7 @@ class Trajectory:
 
             # Take-off starts from the current horizontal position.
             self.xd[0] = self.x[0]
-            self.xd[1] = 5
+            self.xd[1] = self.x[1]
             self.x_init = self.x
 
             self.t_traj = (self.takeoff_end_height - self.x[2]) / \
