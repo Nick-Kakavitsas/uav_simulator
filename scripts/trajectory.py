@@ -2,6 +2,7 @@ import datetime
 import numpy as np
 import pdb
 import trajUtils as cm
+import trajNK
 
 
 class Trajectory:
@@ -106,7 +107,7 @@ class Trajectory:
         self.trajDt = 1
 
         # Define the trajectory
-        self.traj = Trajectory(self.vehicle, ctrlType, trajSelect, wp)
+        self.traj = trajNK(self.vehicle, ctrlType, trajSelect, wp)
 
     def get_desired(self, mode, states, x_offset, yaw_offset):
         self.x, self.v, self.a, self.R, self.W = states
