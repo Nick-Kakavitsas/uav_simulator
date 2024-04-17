@@ -372,13 +372,16 @@ class Trajectory:
         # Unpack the desired trajectory and set them
         (xd, xd_dot, xd_2dot, xd_3dot, xd_4dot, b1d, b1d_dot, b1d_2dot, _, _, _) = desTraj
 
+        # Set variable to flip z
+        flipZ = np.array([1,1,-1])
+
         # Set the states
-        self.xd = xd.copy()
-        self.xd_dot = xd_dot.copy()
-        self.xd_2dot = xd_2dot.copy()
-        self.xd_3dot = xd_3dot.copy()
-        self.xd_4dot = xd_4dot.copy()
-        self.b1d = self.get_current_b1()
+        self.xd = flipZ@xd.copy()
+        self.xd_dot = flipZ@xd_dot.copy()
+        self.xd_2dot = flipZ@xd_2dot.copy()
+        self.xd_3dot = flipZ@xd_3dot.copy()
+        self.xd_4dot = flipZ@xd_4dot.copy()
+        self.b1d = np.array([1,0,0])
         self.b1d_dot = np.zeros(3)
         self.b1d_2dot = np.zeros(3)
         # self.b1d = b1d.copy()
