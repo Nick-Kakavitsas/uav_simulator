@@ -100,7 +100,7 @@ class Trajectory:
         # Select Yaw Trajectory Type      (3: follow          4: zero) <<< NK: ONLY SELECT THESE OPTIONS
         trajSelect[1] = 3
         # NK: Select the avg velocity between waypoints - changed from original options
-        trajSelect[2] = 1
+        trajSelect[2] = 5
 
         # Define the trajectory time step
         self.trajDt = 1
