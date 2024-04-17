@@ -103,7 +103,7 @@ class Trajectory:
         trajSelect[2] = 5
 
         # Define the trajectory time step
-        self.trajDt = 1
+        self.trajDt = 10
 
         # Define the trajectory
         self.traj = traj(self.vehicle, ctrlType, trajSelect, wp)
