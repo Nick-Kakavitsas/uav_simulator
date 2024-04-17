@@ -74,7 +74,6 @@ class Trajectory:
         desRad = 5
         IC = np.zeros(3)
         wp = cm.rrtCoords(20, coordPlots, IC)
-        n = np.max(wp.shape)
 
         # Setup the vehicle with the required states
         class Vehicle():
@@ -363,6 +362,9 @@ class Trajectory:
     def nickTraj(self):
         # Get initial conditions for vehicle
         self.update_initial_state()
+
+        # Update time
+        self.update_current_time()
 
         # Get new trajectory
         desTraj = self.traj.desiredState(self.t, self.trajDt, self.vehicle)
