@@ -367,5 +367,14 @@ class Trajectory:
         desTraj = self.traj.desiredState(self.t, self.trajDt, self.vehicle)
 
         # Unpack the desired trajectory and set them
-        (self.xd, self.xd_dot, self.xd_2dot, self.xd_3dot, self.xd_4dot, self.b1d, self.b1d_dot, self.b1d_2dot, _, _, _) = desTraj
+        (xd, xd_dot, xd_2dot, xd_3dot, xd_4dot, b1d, b1d_dot, b1d_2dot, _, _, _) = desTraj
 
+        # Set the states
+        self.xd = xd.copy()
+        self.xd_dot = xd_dot.copy()
+        self.xd_2dot = xd_2dot.copy()
+        self.xd_3dot = xd_3dot.copy()
+        self.xd_4dot = xd_4dot.copy()
+        self.b1d = b1d.copy()
+        self.b1d_dot = b1d_dot.copy()
+        self.b1d_2dot = b1d_2dot.copy()
