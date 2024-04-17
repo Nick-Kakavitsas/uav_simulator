@@ -73,7 +73,8 @@ class Trajectory:
         desAlt = 20
         desRad = 5
         IC = np.zeros(3)
-        wp = cm.rrtCoords(20, coordPlots, IC)
+        # wp = cm.rrtCoords(desAlt, coordPlots, IC)
+        wp = cm.xTraj(desAlt, IC)
 
         # Setup the vehicle with the required states
         class Vehicle():
@@ -103,7 +104,7 @@ class Trajectory:
         trajSelect[2] = 5
 
         # Define the trajectory time step
-        self.trajDt = 10
+        self.trajDt = 0.1
 
         # Define the trajectory
         self.traj = traj(self.vehicle, ctrlType, trajSelect, wp)

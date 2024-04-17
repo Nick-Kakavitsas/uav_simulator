@@ -133,6 +133,21 @@ def rrtCoords(desAlt, plotFlag, IC):
     # Return the desired coordinates
     return (coords)
 
+def xTraj(desAlt,IC):
+    # Define points of the trajectory
+    pt1 = np.array([-5, -5, desAlt])
+    pt2 = np.array([5, 5, desAlt])
+    pt3 = np.array([5, -5, desAlt])
+    pt4 = np.array([-5, 5, desAlt])
+    pts = np.vstack([pt1, pt2, pt3, pt4])
+    up = np.array([0, 0, desAlt])
+
+    # Define the trajectory
+    coords = np.vstack([IC, up, pts, pts, pts, up, IC])
+
+    # Return the desired coordinates
+    return (coords)
+
 def lawnmowerCoords(desAlt):
     csvFile = np.array(pandas.read_csv("RRTData/lawnmowerTrack.csv", header=None))
     newRow = np.array([desAlt] * np.max(csvFile.shape)).reshape(1, -1)
