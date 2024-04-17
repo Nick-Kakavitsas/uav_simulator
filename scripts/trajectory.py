@@ -384,7 +384,4 @@ class Trajectory:
         # self.b1d = b1d.copy()
         # self.b1d_dot = b1d_dot.copy()
         # self.b1d_2dot = b1d_2dot.copy()
-<<<<<<< HEAD
         self.trajectory_started = True
-=======
->>>>>>> 9af91e9649c17562bb14ec6085b0dc9fc7c9559b
