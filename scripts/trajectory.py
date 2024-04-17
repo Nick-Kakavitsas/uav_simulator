@@ -132,18 +132,19 @@ class Trajectory:
             self.manual()
             return
         
-        # if self.mode == 0 or self.mode == 1:  # idle and warm-up
-        if self.mode == 0:  # idle and warm-up
+        if self.mode == 0 or self.mode == 1:  # idle and warm-up
+        # if self.mode == 0:  # idle and warm-up
             self.set_desired_states_to_zero()
             self.mark_traj_start()
-        elif self.mode == 1:  # NK: Change warm-up to my trajectory so I don't have to add a new button (for now)
-            self.nickTraj()
+        # elif self.mode == 1:
+        #     self.nickTraj()
         elif self.mode == 2:  # take-off
             self.takeoff()
         elif self.mode == 3:  # land
             self.land()
         elif self.mode == 4:  # stay
-            self.stay()
+            # self.stay()
+            self.nickTraj() # NK: Change warm-up to my trajectory so I don't have to add a new button (for now)
         elif self.mode == 5:  # circle
             self.circle()
 
